@@ -6,6 +6,7 @@
 
 import socket
 import pycurl
+from StringIO import StringIO
 
 
 class ShoutCast():
@@ -49,12 +50,15 @@ class ShoutCast():
         :param param:
         :return: string
         """
+        storage = StringIO()
         c = pycurl.Curl()
         c.setopt(pycurl.CONNECTTIMEOUT, 3)
         c.setopt(pycurl.URL, "http://%s:%s/admin.cgi?pass=%s&mode=viewxml HTTP/1.1\r\n" % (self.host, self.port, self.password))
+        c.setopt(c.WRITEFUNCTION, storage.write)
         c.perform()
+        c.close()
 
-        self.sock.send("User-Agent: Python CastClass")
+        s = storage.getvalue()
 
 
 c = ShoutCast('127.0.0.1', 80, '', '')
