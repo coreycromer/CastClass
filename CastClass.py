@@ -3,9 +3,13 @@
 #
 # Author: Kossakowski, Daniel
 #
+# Requirements:
+# - pycurl (python-pycurl)
+# - xmltodict (pip)
 
 import socket
 import pycurl
+import xmltodict
 from StringIO import StringIO
 
 
@@ -50,36 +54,62 @@ class ShoutCast():
         :param param:
         :return: string
         """
+        url = "http://%s:%s/admin.cgi?pass=%s&mode=viewxml" % (self.host, self.port, self.password)
+
         storage = StringIO()
         c = pycurl.Curl()
         c.setopt(pycurl.CONNECTTIMEOUT, 3)
-        c.setopt(pycurl.URL, "http://%s:%s/admin.cgi?pass=%s&mode=viewxml HTTP/1.1\r\n" % (self.host, self.port, self.password))
+        c.setopt(pycurl.FOLLOWLOCATION, True)
+        c.setopt(pycurl.USERAGENT, "Python CastClass (Mozilla Compatible)")
+        c.setopt(pycurl.URL, url)
         c.setopt(c.WRITEFUNCTION, storage.write)
         c.perform()
         c.close()
 
-        s = storage.getvalue()
+        x = xmltodict.parse(storage.getvalue())
+        return x[param]
 
+    def check_presenter_online(self):
+        if self.get_stream_status() == 0:
+            return False
+        else:
+            if self.get_bitrate() == 0:
+                return False
+            else:
+                return True
 
-c = ShoutCast('127.0.0.1', 80, '', '')
-print c.connect(1)
-print c.getParam('jurek')
+    def get_bitrate(self):
+        return self.get_param('BITRATE')
 
-"""
-/*
-* Zwracanie danej pozycji, oto ich lista:
-* CURRENTLISTENERS - ilość aktualnych słuchaczy
-* PEAKLISTENERS - dotychczasowy rekord liczby słuchaczy
-* MAXLISTENERS - maksymalna ilość słuchaczy
-* SERVERGENRE - rodzaj serwera
-* SERVERURL - adres URL strony
-* SERVERTITLE - nazwa serwera
-* SONGTITLE - nazwa utworu aktualnie odtwarzanego
-* IRC - identyfikator IRC
-* AIM - identyfikator AIM
-* ICQ - identyfikator ICQ
-* STREAMSTATUS - status strumienia
-* BITRATE - jakość nadawania
-*/
+    def get_stream_status(self):
+        return self.get_param('STREAMSTATUS')
 
-"""
+    def get_current_listeners(self):
+        return self.get_param('CURRENTLISTENERS')
+
+    def get_peak_listeners(self):
+        return self.get_param('PEAKLISTENERS')
+
+    def get_max_listeners(self):
+        return self.get_param('MAXLISTENERS')
+
+    def get_genre(self):
+        return self.get_param('SERVERGENRE')
+
+    def get_url(self):
+        return self.get_param('SERVERURL')
+
+    def get_server_title(self):
+        return self.get_param('SERVERTITLE')
+
+    def get_song_title(self):
+        return self.get_param('SONGTITLE')
+
+    def get_irc(self):
+        return self.get_param('IRC')
+
+    def get_aim(self):
+        return self.get_param('AIM')
+
+    def get_icq(self):
+        return self.get_param('ICQ')
