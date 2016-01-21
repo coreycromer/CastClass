@@ -13,16 +13,16 @@ import xmltodict
 from StringIO import StringIO
 
 
-class ShoutCast():
+class ShoutCast1():
 
     def __init__(self, host, port, username, password):
         """
         Initialize socket and fill user credentials.
 
-        :param host:
-        :param port:
-        :param username:
-        :param password:
+        :param host: FQDN or IP address of the server.
+        :param port: Network port number.
+        :param username: Admin username.
+        :param password: Admin password.
         :return:
         """
         self.host = host
@@ -51,7 +51,7 @@ class ShoutCast():
         """
         Return value of requested param from ShoutCast v1 server.
 
-        :param param:
+        :param param: XML param to return.
         :return: string
         """
         url = "http://%s:%s/admin.cgi?pass=%s&mode=viewxml" % (self.host, self.port, self.password)
@@ -113,3 +113,61 @@ class ShoutCast():
 
     def get_icq(self):
         return self.get_param('ICQ')
+
+
+class ShoutCast2():
+
+    def __init__(self, host, port, username, password):
+        """
+        Initialize socket and fill user credentials.
+
+        :param host: FQDN or IP address of the server.
+        :param port: Network port number.
+        :param username: Admin username.
+        :param password: Admin password.
+        :return:
+        """
+        self.host = host
+        self.port = port
+        self.username = username
+        self.password = password
+        self.sock = socket.socket()
+
+    def test_connection(self, timeout = 5):
+        """
+        Connect to ShoutCast vv server and return false on error or true on success.
+
+        :param timeout:
+        :return:
+        """
+        # Host and port must be a Tuple!
+        self.sock.settimeout(timeout)
+
+        try:
+            self.sock.connect((self.host, self.port))
+            return True
+        except:
+            return False
+
+    def get_param(self, param, stream):
+        """
+        Return value of requested param from ShoutCast v2 server.
+
+        :param param: XML param to return.
+        :param stream: Stream ID (ShoutCast2 can provide multiple streams, number starts from 1).
+        :return: string
+        """
+        url = "http://%s:%s/admin.cgi?pass=%s&sid=%&mode=viewxml" % (self.host, self.port, self.password, stream)
+
+        storage = StringIO()
+        c = pycurl.Curl()
+        c.setopt(pycurl.CONNECTTIMEOUT, 3)
+        c.setopt(pycurl.FOLLOWLOCATION, True)
+        c.setopt(pycurl.USERAGENT, "Python CastClass (Mozilla Compatible)")
+        c.setopt(pycurl.URL, url)
+        c.setopt(c.WRITEFUNCTION, storage.write)
+        c.perform()
+        c.close()
+
+        x = xmltodict.parse(storage.getvalue())
+        return x[param]
