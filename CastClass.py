@@ -171,3 +171,39 @@ class ShoutCast2():
 
 	x = xmltodict.parse(storage.getvalue())
         return x['SHOUTCASTSERVER'][param]
+
+    def check_presenter_online(self):
+        if self.get_stream_status() == 0:
+            return False
+        else:
+            if self.get_bitrate() == 0:
+                return False
+            else:
+                return True
+
+    def get_bitrate(self):
+        return self.get_param('BITRATE')
+
+    def get_stream_status(self):
+        return self.get_param('STREAMSTATUS')
+
+    def get_current_listeners(self):
+        return self.get_param('CURRENTLISTENERS')
+
+    def get_peak_listeners(self):
+        return self.get_param('PEAKLISTENERS')
+
+    def get_max_listeners(self):
+        return self.get_param('MAXLISTENERS')
+
+    def get_genre(self):
+        return self.get_param('SERVERGENRE')
+
+    def get_url(self):
+        return self.get_param('SERVERURL')
+
+    def get_server_title(self):
+        return self.get_param('SERVERTITLE')
+
+    def get_song_title(self):
+        return self.get_param('SONGTITLE')
