@@ -149,7 +149,7 @@ class ShoutCast2():
         except:
             return False
 
-    def get_param(self, param, stream):
+    def get_param(self, param, stream = '1'):
         """
         Return value of requested param from ShoutCast v2 server.
 
@@ -157,9 +157,9 @@ class ShoutCast2():
         :param stream: Stream ID (ShoutCast2 can provide multiple streams, number starts from 1).
         :return: string
         """
-        url = "http://%s:%s/admin.cgi?pass=%s&sid=%&mode=viewxml" % (self.host, self.port, self.password, stream)
-
-        storage = StringIO()
+        url = "http://%s:%s/admin.cgi?pass=%s&sid=%s&mode=viewxml" % (self.host, self.port, self.password, stream)
+        
+	storage = StringIO()
         c = pycurl.Curl()
         c.setopt(pycurl.CONNECTTIMEOUT, 3)
         c.setopt(pycurl.FOLLOWLOCATION, True)
@@ -169,5 +169,5 @@ class ShoutCast2():
         c.perform()
         c.close()
 
-        x = xmltodict.parse(storage.getvalue())
-        return x[param]
+	x = xmltodict.parse(storage.getvalue())
+        return x['SHOUTCASTSERVER'][param]
