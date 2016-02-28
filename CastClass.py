@@ -25,6 +25,7 @@ class ShoutCast1():
         :param password: Admin password.
         :return:
         """
+        self.data = None
         self.host = host
         self.port = port
         self.username = username
@@ -47,7 +48,7 @@ class ShoutCast1():
         except:
             return False
 
-    def get_param(self, param):
+    def get_xml(self, param):
         """
         Return value of requested param from ShoutCast v1 server.
 
@@ -68,6 +69,12 @@ class ShoutCast1():
 
         x = xmltodict.parse(storage.getvalue())
         return x[param]
+        
+    def get_param(self, param):
+        if self.data == None:
+            self.data = self.get_xml('SHOUTCASTSERVER')
+        
+        return self.data[param]
 
     def check_presenter_online(self):
         if self.get_stream_status() == 0:
@@ -127,6 +134,7 @@ class ShoutCast2():
         :param password: Admin password.
         :return:
         """
+        self.data = None
         self.host = host
         self.port = port
         self.username = username
@@ -149,7 +157,8 @@ class ShoutCast2():
         except:
             return False
 
-    def get_param(self, param, stream = '1'):
+
+    def get_xml(self, param, stream = '1'):
         """
         Return value of requested param from ShoutCast v2 server.
 
@@ -170,7 +179,13 @@ class ShoutCast2():
         c.close()
 
 	x = xmltodict.parse(storage.getvalue())
-        return x['SHOUTCASTSERVER'][param]
+        return x[param]
+    
+    def get_param(self, param):
+        if self.data == None:
+            self.data = self.get_xml('SHOUTCASTSERVER')
+        
+        return self.data[param]
 
     def check_presenter_online(self):
         if self.get_stream_status() == 0:
